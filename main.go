@@ -35,6 +35,11 @@ func main() {
 		os.Exit(2)
 	}
 
+	if args[0] == "help" {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	for _, cmd := range commands {
 		if args[0] == cmd.Name {
 			cmd.Flag.Parse(args[1:])
