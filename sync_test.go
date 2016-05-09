@@ -61,16 +61,13 @@ func createManifestFile(t *testing.T, manifestFile string, reposDirectory string
 	}
 }
 
-func TestSync(t *testing.T) {
+func setupRepos(t *testing.T, reposName []string) {
 	tmpReposDirectory, err := ioutil.TempDir("/tmp", "multirepo")
 
 	if err != nil {
 		t.Error(err)
 	}
 	reposDirectory = tmpReposDirectory
-	defer os.RemoveAll(reposDirectory)
-
-	reposName := []string{"repoA", "repoB", "repoC"}
 
 	reposOriginDir := path.Join(reposDirectory, "origin")
 	if err = os.MkdirAll(reposOriginDir, 0755); err != nil {
@@ -80,14 +77,21 @@ func TestSync(t *testing.T) {
 
 	manifestFile = path.Join(reposDirectory, DEFAULT_MANIFEST_FILE)
 	createManifestFile(t, manifestFile, reposOriginDir, reposName)
+}
+
+func TestSync(t *testing.T) {
+	reposName := []string{"repoA", "repoB", "repoC"}
+	setupRepos(t, reposName)
+	defer os.RemoveAll(reposDirectory)
 
 	var noArgs []string
+	branchName = "master"
 	runSync(nil, noArgs)
 
 	for _, repoName := range reposName {
 		repoAPath := path.Join(reposDirectory, repoName)
 
-		if _, err = os.Stat(repoAPath); err != nil {
+		if _, err := os.Stat(repoAPath); err != nil {
 			t.Errorf("Clone operation failed repository not exist on local, %s", err)
 		}
 	}

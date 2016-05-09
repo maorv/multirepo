@@ -10,6 +10,7 @@ import (
 var commands = []Command{
 	CmdSync,
 	CmdSave,
+	CmdPush,
 }
 
 func PrintDefaults() {

@@ -11,5 +11,6 @@ type Command struct {
 
 var (
 	manifestFile   string
+	branchName     string
 	reposDirectory string
 )

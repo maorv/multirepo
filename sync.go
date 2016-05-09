@@ -18,10 +18,6 @@ var CmdSync = Command{
 	Flag:  flag.NewFlagSet("sync", flag.ExitOnError),
 }
 
-var (
-	branchName string
-)
-
 func init() {
 	CmdSync.Flag.StringVar(&manifestFile, "manifest", DEFAULT_MANIFEST_FILE, "Path to repositories manifest file")
 	cwd, _ := os.Getwd()
