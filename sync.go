@@ -5,9 +5,6 @@ import (
 	"github.com/maorv/git-module"
 	"log"
 	"os"
-	"path"
-	"path/filepath"
-	"strings"
 	"sync"
 )
 
@@ -25,17 +22,6 @@ func init() {
 	CmdSync.Flag.StringVar(&branchName, "branch", "origin/master", "Branch to checkout")
 }
 
-func updateRepo(repoPath string, wg *sync.WaitGroup) {
-	defer wg.Done()
-	log.Printf("Starting fetch repository %s\n", repoPath)
-	err := git.Fetch(repoPath, git.FetchRemoteOptions{false, -1})
-	if err != nil {
-		log.Fatal("Failed to open repo %s reason: %s\n", repoPath, err)
-	}
-	log.Printf("Finished fetch repository %s\n", repoPath)
-	git.Rebase(repoPath)
-}
-
 func cloneRepo(repoPath string, repoUrl string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	log.Printf("Starting cloning %s\n", repoUrl)
@@ -51,15 +37,16 @@ func runSync(cmd *Command, args []string) {
 	var wg sync.WaitGroup
 	reposPath := make([]string, 0, len(manifest.Entries))
 	for _, repoUrl := range manifest.Entries {
-		fileName := path.Base(repoUrl.RepoURL)
-		fileName = strings.TrimSuffix(fileName, ".git")
-		clonedPath := filepath.Join(reposDirectory, fileName)
+		clonedPath := repoDirectory(repoUrl.RepoURL)
 		if _, err := os.Stat(clonedPath); os.IsNotExist(err) {
 			wg.Add(1)
 			go cloneRepo(clonedPath, repoUrl.RepoURL, &wg)
 		} else {
 			wg.Add(1)
-			go updateRepo(clonedPath, &wg)
+			go func() {
+				fetchRepo(clonedPath, &wg)
+				git.Rebase(clonedPath, git.RebaseOptions{""})
+			}()
 		}
 		reposPath = append(reposPath, clonedPath)
 	}
