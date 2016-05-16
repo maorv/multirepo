@@ -30,6 +30,20 @@ do
 done
 `
 
+const scriptCreateBranchWithCommits = `#!/bin/sh
+repos=$1
+branch=$2
+for repo in $repos;
+do
+	(cd $repo && git checkout -b $branch)
+	for file in ` + "`seq 1 100`" + `;
+	do
+		file=$file.$branch
+		(cd $repo && dd if=/dev/urandom of=$file count=1 && git add $file && git commit -m 'Add $file' $file)
+	done
+done
+`
+
 func runScript(t *testing.T, script string, runAtDirectory string, arg ...string) {
 	scriptFile := path.Join(runAtDirectory, "createRepos.sh")
 	if err := ioutil.WriteFile(scriptFile, []byte(script), 0755); err != nil {

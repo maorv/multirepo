@@ -11,6 +11,7 @@ var commands = []Command{
 	CmdSync,
 	CmdSave,
 	CmdPush,
+	CmdApply,
 }
 
 func PrintDefaults() {
