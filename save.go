@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/gogits/git-module"
+	"github.com/maorv/git-module"
 	"log"
 	"os"
 	"path"
